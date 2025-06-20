@@ -75,6 +75,13 @@ echo "--- Setup Complete! ---"
 echo "You should now be able to connect via SSH without a password."
 echo "Example: ssh -i /path/to/your/private_key_file ${TARGET_USER}@<your_public_ip>"
 
+
+# 6. Run apt-get update silently in the background
+echo "-> Starting system package update in background (this may take a moment)..."
+sudo apt-get update > /dev/null 2>&1 &
+echo "   apt-get update command sent to background."
+echo "   You can check its status later by running 'ps aux | grep apt' or 'sudo apt-get update' again to see if it finished."
+
 # Display Public IP at the very end for convenience
 echo ""
 echo "-----------------------------------"
