@@ -77,6 +77,7 @@ Once the lab machine setup is complete, follow these steps to SSH into it:
 3. **Configure SSH connection:**
     - **Remote Host:** Enter the public IP of your lab machine
     - **Specify Username:** Check the box and enter the username you set in `setup_ssh.sh` (e.g., `toor` or `ubuntu`).
+    - toor will likely work
     
     OR 
     
