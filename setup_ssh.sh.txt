@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# --- Configuration ---
+# Set this to the name of your public key file in the repo.
+# Ensure this file contains your public key in OpenSSH single-line format!
+PUBLIC_KEY_FILE="id_rsa.pub"
+
+# Set this to your username on the lab machine if it's different from the user running the script
+# If left empty, it uses the current user ($USER)
+TARGET_USER="$USER" # Or 'toor' if you must, but reconsider
+# -------------------
+
+echo "Starting SSH key setup automation for user: $TARGET_USER"
+
+# 1. Check for public key file
+if [ ! -f "$PUBLIC_KEY_FILE" ]; then
+    echo "Error: Public key file '$PUBLIC_KEY_FILE' not found in the current directory."
+    echo "Please ensure your public key is in this directory and named correctly."
+    exit 1
+fi
+
+# 2. Create .ssh directory if it doesn't exist and set permissions
+echo "Creating ~/.ssh directory and setting permissions..."
+mkdir -p /home/"$TARGET_USER"/.ssh
+chmod 700 /home/"$TARGET_USER"/.ssh
+chown "$TARGET_USER":"$TARGET_USER" /home/"$TARGET_USER"/.ssh
+echo "~/.ssh directory created/verified."
+
+# 3. Append public key to authorized_keys and set permissions
+echo "Adding public key to ~/.ssh/authorized_keys..."
+cat "$PUBLIC_KEY_FILE" >> /home/"$TARGET_USER"/.ssh/authorized_keys
+chmod 600 /home/"$TARGET_USER"/.ssh/authorized_keys
+chown "$TARGET_USER":"$TARGET_USER" /home/"$TARGET_USER"/.ssh/authorized_keys
+echo "Public key added to authorized_keys."
+
+# 4. (Optional) Disable PasswordAuthentication in sshd_config for enhanced security
+#    WARNING: Ensure your key-based access is working before relying solely on it.
+echo "Modifying /etc/ssh/sshd_config to disable password authentication..."
+sudo sed -i 's/^#\?PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config
+# Ensure PubkeyAuthentication is enabled
+sudo sed -i 's/^#\?PubkeyAuthentication no/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
+# Ensure UsePAM is enabled (required for most system auth)
+sudo sed -i 's/^#\?UsePAM no/UsePAM yes/g' /etc/ssh/sshd_config
+
+echo "/etc/ssh/sshd_config modified. Please review manually if needed."
+
+# 5. Restart SSH service
+echo "Restarting SSH service to apply changes..."
+sudo systemctl restart ssh
+echo "SSH service restarted. Attempting to connect now."
+
+echo "Setup complete! Try connecting via SSH without a password."
+echo "Example: ssh -i /path/to/your/private_key_file ${TARGET_USER}@<your_public_ip>"
