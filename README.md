@@ -46,7 +46,7 @@ Follow these steps **on your Ubuntu Lab Machine** and then **on your Local Machi
     cd lab-setup
     ```
     
-3. **Make the setup script executable:**
+3. **Make the setup script executable (if they are not already set):**
     
     ```bash
     chmod +x setup_ssh.sh
